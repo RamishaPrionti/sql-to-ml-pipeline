@@ -1,0 +1,15 @@
+{
+  "run_name": "lightgbm__no_pca__optuna",
+  "model_family": "lightgbm",
+  "uses_pca": false,
+  "uses_optuna": true,
+  "cv_f1": 0.9843295520651543,
+  "test_f1": 0.9726027397260274,
+  "best_params": {
+    "n_estimators": 199,
+    "learning_rate": 0.24002824032459352,
+    "num_leaves": 132,
+    "min_child_samples": 40
+  },
+  "model_path": "c:\\Users\\preon\\OneDrive\\Desktop\\final project\\sql-to-ml-pipeline\\models\\lightgbm__no_pca__optuna.joblib"
+}

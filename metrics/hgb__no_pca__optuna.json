@@ -1,0 +1,15 @@
+{
+  "run_name": "hgb__no_pca__optuna",
+  "model_family": "hgb",
+  "uses_pca": false,
+  "uses_optuna": true,
+  "cv_f1": 0.9774935233160621,
+  "test_f1": 0.9659863945578231,
+  "best_params": {
+    "max_depth": 9,
+    "learning_rate": 0.19238671419468334,
+    "max_iter": 142
+  },
+  "model_path": "c:\\Users\\preon\\OneDrive\\Desktop\\final project\\sql-to-ml-pipeline\\models\\hgb__no_pca__optuna.joblib",
+  "metrics_path": "c:\\Users\\preon\\OneDrive\\Desktop\\final project\\sql-to-ml-pipeline\\metrics\\hgb__no_pca__optuna.json"
+}

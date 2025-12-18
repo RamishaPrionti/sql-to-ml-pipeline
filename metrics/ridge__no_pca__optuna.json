@@ -1,0 +1,12 @@
+{
+  "run_name": "ridge__no_pca__optuna",
+  "model_family": "ridge",
+  "uses_pca": false,
+  "uses_optuna": true,
+  "cv_f1": 0.9743578841793128,
+  "test_f1": 0.9664429530201343,
+  "best_params": {
+    "alpha": 5.429836549662668
+  },
+  "model_path": "c:\\Users\\preon\\OneDrive\\Desktop\\final project\\sql-to-ml-pipeline\\models\\ridge__no_pca__optuna.joblib"
+}

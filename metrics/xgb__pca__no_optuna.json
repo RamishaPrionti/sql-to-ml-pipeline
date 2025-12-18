@@ -1,0 +1,11 @@
+{
+  "run_name": "xgb__pca__no_optuna",
+  "model_family": "xgb",
+  "uses_pca": true,
+  "uses_optuna": false,
+  "cv_f1": 0.9581004182187992,
+  "test_f1": 0.9583333333333334,
+  "best_params": null,
+  "model_path": "c:\\Users\\preon\\OneDrive\\Desktop\\final project\\sql-to-ml-pipeline\\models\\xgb__pca__no_optuna.joblib",
+  "metrics_path": "c:\\Users\\preon\\OneDrive\\Desktop\\final project\\sql-to-ml-pipeline\\metrics\\xgb__pca__no_optuna.json"
+}

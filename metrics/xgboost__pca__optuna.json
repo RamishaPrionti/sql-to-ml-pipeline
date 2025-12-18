@@ -1,0 +1,16 @@
+{
+  "run_name": "xgboost__pca__optuna",
+  "model_family": "xgboost",
+  "uses_pca": true,
+  "uses_optuna": true,
+  "cv_f1": 0.9651396874634036,
+  "test_f1": 0.965034965034965,
+  "best_params": {
+    "n_estimators": 318,
+    "max_depth": 5,
+    "learning_rate": 0.21226665104093173,
+    "subsample": 0.6087976415352908,
+    "colsample_bytree": 0.7898227401228288
+  },
+  "model_path": "c:\\Users\\preon\\OneDrive\\Desktop\\final project\\sql-to-ml-pipeline\\models\\xgboost__pca__optuna.joblib"
+}

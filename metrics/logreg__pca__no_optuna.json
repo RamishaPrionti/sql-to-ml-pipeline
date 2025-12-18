@@ -1,0 +1,11 @@
+{
+  "run_name": "logreg__pca__no_optuna",
+  "model_family": "logreg",
+  "uses_pca": true,
+  "uses_optuna": false,
+  "cv_f1": 0.9860559082920114,
+  "test_f1": 0.9790209790209791,
+  "best_params": null,
+  "model_path": "c:\\Users\\preon\\OneDrive\\Desktop\\final project\\sql-to-ml-pipeline\\models\\logreg__pca__no_optuna.joblib",
+  "metrics_path": "c:\\Users\\preon\\OneDrive\\Desktop\\final project\\sql-to-ml-pipeline\\metrics\\logreg__pca__no_optuna.json"
+}

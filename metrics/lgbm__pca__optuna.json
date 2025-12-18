@@ -1,0 +1,16 @@
+{
+  "run_name": "lgbm__pca__optuna",
+  "model_family": "lgbm",
+  "uses_pca": true,
+  "uses_optuna": true,
+  "cv_f1": 0.9688104302634759,
+  "test_f1": 0.9863013698630136,
+  "best_params": {
+    "n_estimators": 368,
+    "max_depth": 11,
+    "learning_rate": 0.03532542019021317,
+    "num_leaves": 30
+  },
+  "model_path": "c:\\Users\\preon\\OneDrive\\Desktop\\final project\\sql-to-ml-pipeline\\models\\lgbm__pca__optuna.joblib",
+  "metrics_path": "c:\\Users\\preon\\OneDrive\\Desktop\\final project\\sql-to-ml-pipeline\\metrics\\lgbm__pca__optuna.json"
+}

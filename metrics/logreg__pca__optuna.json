@@ -1,0 +1,14 @@
+{
+  "run_name": "logreg__pca__optuna",
+  "model_family": "logreg",
+  "uses_pca": true,
+  "uses_optuna": true,
+  "cv_f1": 0.986146344974002,
+  "test_f1": 0.9861111111111112,
+  "best_params": {
+    "C": 0.5626873815011803,
+    "solver": "lbfgs"
+  },
+  "model_path": "c:\\Users\\preon\\OneDrive\\Desktop\\final project\\sql-to-ml-pipeline\\models\\logreg__pca__optuna.joblib",
+  "metrics_path": "c:\\Users\\preon\\OneDrive\\Desktop\\final project\\sql-to-ml-pipeline\\metrics\\logreg__pca__optuna.json"
+}

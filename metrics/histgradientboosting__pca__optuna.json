@@ -1,0 +1,14 @@
+{
+  "run_name": "histgradientboosting__pca__optuna",
+  "model_family": "histgradientboosting",
+  "uses_pca": true,
+  "uses_optuna": true,
+  "cv_f1": 0.9686409249563699,
+  "test_f1": 0.951048951048951,
+  "best_params": {
+    "learning_rate": 0.10292181136979468,
+    "max_depth": 10,
+    "max_leaf_nodes": 63
+  },
+  "model_path": "c:\\Users\\preon\\OneDrive\\Desktop\\final project\\sql-to-ml-pipeline\\models\\histgradientboosting__pca__optuna.joblib"
+}
