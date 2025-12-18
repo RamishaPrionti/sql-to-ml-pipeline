@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: sql-to-ml-api
+    env: docker
+    dockerfilePath: ./api/Dockerfile
+    dockerContext: .
+    plan: free
+    autoDeploy: true
+
+  - type: web
+    name: sql-to-ml-streamlit
+    env: docker
+    dockerfilePath: ./streamlit/Dockerfile
+    dockerContext: .
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: API_URL
+        # IMPORTANT: replace this with your API Render URL after first deploy
+        value: https://sql-to-ml-api.onrender.com
+
