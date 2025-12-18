@@ -13,7 +13,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 # Import shared pipeline components so unpickling works
-from housing_pipeline import (
+from ml_pipeline import (
     ClusterSimilarity,
     column_ratio,
     ratio_name,
