@@ -1,6 +1,5 @@
 import json
 import os
-from pathlib import Path
 from typing import Any, Dict
 
 import requests
@@ -9,183 +8,131 @@ import streamlit as st
 # -----------------------------------------------------------------------------
 # MUST be the first Streamlit command
 # -----------------------------------------------------------------------------
-st.set_page_config(page_title="Housing Prediction", page_icon="🏠", layout="centered")
+st.set_page_config(page_title="Breast Cancer Classification", page_icon="🧬", layout="centered")
 
 # -----------------------------------------------------------------------------
 # Config
 # -----------------------------------------------------------------------------
-SCHEMA_PATH = Path("/app/data/data_schema.json")
-
-# API_URL is set in docker-compose environment
 API_BASE_URL = os.getenv("API_URL", "http://localhost:8000")
 PREDICT_ENDPOINT = f"{API_BASE_URL}/predict"
+HEALTH_ENDPOINT = f"{API_BASE_URL}/health"
+
+# Breast Cancer Wisconsin (sklearn) features (30)
+FEATURES = [
+    "mean radius","mean texture","mean perimeter","mean area","mean smoothness","mean compactness",
+    "mean concavity","mean concave points","mean symmetry","mean fractal dimension",
+    "radius error","texture error","perimeter error","area error","smoothness error","compactness error",
+    "concavity error","concave points error","symmetry error","fractal dimension error",
+    "worst radius","worst texture","worst perimeter","worst area","worst smoothness","worst compactness",
+    "worst concavity","worst concave points","worst symmetry","worst fractal dimension",
+]
 
 # -----------------------------------------------------------------------------
-# Load schema from JSON file
+# Helpers
 # -----------------------------------------------------------------------------
-@st.cache_resource
-def load_schema(path: Path) -> Dict[str, Any]:
-    if not path.exists():
-        raise FileNotFoundError(f"Schema file not found: {path}")
-    with open(path, "r") as f:
-        return json.load(f)
+def call_api(payload: Dict[str, Any]) -> Dict[str, Any]:
+    resp = requests.post(PREDICT_ENDPOINT, json=payload, timeout=30)
+    if resp.status_code != 200:
+        raise RuntimeError(f"API error {resp.status_code}: {resp.text}")
+    return resp.json()
 
+def safe_get_health() -> str:
+    try:
+        r = requests.get(HEALTH_ENDPOINT, timeout=10)
+        if r.status_code == 200:
+            return "healthy"
+    except Exception:
+        pass
+    return "unknown"
 
-schema = load_schema(SCHEMA_PATH)
+def label_from_pred(pred: Any) -> str:
+    """
+    sklearn breast cancer dataset convention:
+      0 = malignant
+      1 = benign
+    """
+    try:
+        p = int(pred)
+    except Exception:
+        return str(pred)
 
-numerical_features = schema.get("numerical", {})
-categorical_features = schema.get("categorical", {})
+    if p == 0:
+        return "Malignant (cancer)"
+    if p == 1:
+        return "Benign (non-cancer)"
+    return str(p)
 
 # -----------------------------------------------------------------------------
-# Streamlit UI
+# UI
 # -----------------------------------------------------------------------------
-st.title("🏠 Housing Prediction App")
+st.title("🧬 Breast Cancer Classification App")
 st.write(
     f"This app sends your inputs to the FastAPI backend at **{API_BASE_URL}** for prediction."
 )
+
+st.caption(f"API health: **{safe_get_health()}**")
 
 st.header("Input Features")
 
 user_input: Dict[str, Any] = {}
 
-# -----------------------------------------------------------------------------
-# Numerical Features
-# -----------------------------------------------------------------------------
-st.subheader("Numerical Features")
+st.subheader("Tumor measurements (30 features)")
 
-# Decide which features use sliders
-SLIDER_FEATURES = {"longitude", "latitude", "housing_median_age", "median_income"}
+# nice defaults so you can click Predict quickly
+DEFAULTS = {
+    "mean radius": 14.0,
+    "mean texture": 19.0,
+    "mean perimeter": 92.0,
+    "mean area": 650.0,
+    "mean smoothness": 0.10,
+    "mean compactness": 0.10,
+    "mean concavity": 0.10,
+    "mean concave points": 0.05,
+    "mean symmetry": 0.18,
+    "mean fractal dimension": 0.06,
+}
 
-for feature_name, stats in numerical_features.items():
-    min_val = float(stats.get("min", 0.0))
-    max_val = float(stats.get("max", 1000.0))
-    mean_val = float(stats.get("mean", (min_val + max_val) / 2))
-    median_val = float(stats.get("median", mean_val))
+# layout: 2 columns of inputs
+col1, col2 = st.columns(2)
 
-    # Use median as default
-    default_val = median_val
-
-    label = feature_name.replace("_", " ").title()
-    help_text = (
-        f"Min: {min_val:.2f}, Max: {max_val:.2f}, "
-        f"Mean: {mean_val:.2f}, Median: {median_val:.2f}"
-    )
-
-    if feature_name in SLIDER_FEATURES:
-        # Determine step size based on range and semantics
-        if feature_name in {"housing_median_age"}:
-            step = 1.0  # age in years, int-like
-        elif feature_name in {"median_income"}:
-            step = 0.1  # more granular
-        else:
-            # generic heuristic for latitude/longitude
-            step = 0.01
-
-        user_input[feature_name] = st.slider(
-            label,
-            min_value=min_val,
-            max_value=max_val,
-            value=float(default_val),
-            step=step,
-            help=help_text,
-            key=feature_name,
+for i, feat in enumerate(FEATURES):
+    default_val = float(DEFAULTS.get(feat, 0.0))
+    target_col = col1 if i % 2 == 0 else col2
+    with target_col:
+        user_input[feat] = st.number_input(
+            feat,
+            value=default_val,
+            step=0.01,
+            format="%.5f",
+            help="Enter a numeric value for this feature.",
+            key=feat,
         )
-    else:
-        # Fallback to number_input for wide-range features
-        range_val = max_val - min_val
-        if range_val > 10000:
-            step = 10.0
-        elif range_val > 1000:
-            step = 5.0
-        elif range_val > 100:
-            step = 1.0
-        elif range_val > 10:
-            step = 0.1
-        else:
-            step = 0.01
-
-        user_input[feature_name] = st.number_input(
-            label,
-            min_value=min_val,
-            max_value=max_val,
-            value=float(default_val),
-            step=step,
-            help=help_text,
-            key=feature_name,
-        )
-# -----------------------------------------------------------------------------
-# Categorical Features
-# -----------------------------------------------------------------------------
-st.subheader("Categorical Features")
-
-for feature_name, info in categorical_features.items():
-    unique_values = info.get("unique_values", [])
-    value_counts = info.get("value_counts", {})
-
-    if not unique_values:
-        continue
-
-    # Default to the most common value
-    if value_counts:
-        default_value = max(value_counts, key=value_counts.get)
-    else:
-        default_value = unique_values[0]
-
-    try:
-        default_idx = unique_values.index(default_value)
-    except ValueError:
-        default_idx = 0
-
-    label = feature_name.replace("_", " ").title()
-
-    user_input[feature_name] = st.selectbox(
-        label,
-        options=unique_values,
-        index=default_idx,
-        key=feature_name,
-        help=f"Distribution: {value_counts}",
-    )
 
 st.markdown("---")
 
-# -----------------------------------------------------------------------------
-# Predict Button
-# -----------------------------------------------------------------------------
 if st.button("🔮 Predict", type="primary"):
     payload = {"instances": [user_input]}
 
     with st.spinner("Calling API for prediction..."):
         try:
-            resp = requests.post(PREDICT_ENDPOINT, json=payload, timeout=30)
-        except requests.exceptions.RequestException as e:
-            st.error(f"❌ Request to API failed: {e}")
+            data = call_api(payload)
+        except Exception as e:
+            st.error(f"❌ Prediction failed: {e}")
         else:
-            if resp.status_code != 200:
-                st.error(f"❌ API error: HTTP {resp.status_code} - {resp.text}")
+            preds = data.get("predictions", [])
+            if not preds:
+                st.warning("⚠️ No predictions returned from API.")
             else:
-                data = resp.json()
-                preds = data.get("predictions", [])
+                pred = preds[0]
+                st.success("✅ Prediction successful!")
 
-                if not preds:
-                    st.warning("⚠️ No predictions returned from API.")
-                else:
-                    pred = preds[0]
-                    st.success("✅ Prediction successful!")
+                st.subheader("Prediction Result")
 
-                    st.subheader("Prediction Result")
+                st.metric(label="Predicted class", value=label_from_pred(pred))
+                st.caption("Label mapping: 0 = Malignant, 1 = Benign (common sklearn convention).")
 
-                    # Display prediction with nice formatting
-                    if isinstance(pred, (int, float)):
-                        st.metric(label="Predicted Value", value=f"{pred:,.2f}")
-                    else:
-                        st.metric(label="Predicted Class", value=str(pred))
-
-                    # Show input summary in expander
-                    with st.expander("📋 View Input Summary"):
-                        st.json(user_input)
+                with st.expander("📋 View Input Summary"):
+                    st.json(user_input)
 
 st.markdown("---")
-st.caption(
-    f"📁 Schema: `{SCHEMA_PATH}`  \n"
-    f"🌐 API: `{API_BASE_URL}`"
-)
+st.caption(f"🌐 API: `{API_BASE_URL}`  |  Endpoint: `{PREDICT_ENDPOINT}`")
